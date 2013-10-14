@@ -18,25 +18,26 @@
 
 ## 使用openssl 生成证书
 1. 生成服务端私钥
-
+	 openssl genrsa -des3 -out server.key 1024
 2. 通过该私钥生成证书请求文件
-
+	openssl req -new -key server.key -out server.csr
 3. 生成自签名CA证书
 	openssl req -new -x509 -keyout ca.key -out ca.crt -config /System/Library/OpenSSL/openssl.cnf	
 4. 通过CA自签名证书对证书请求文件进行签名，生成证书
-
+	openssl ca -in server.csr -out server.crt -cert ca.crt -keyfile ca.key -notext -config /System/Library/OpenSSL/openssl.cnf
 ## 使用java keytool 生成证书 
 
 1. 生成私钥及keystore 文件（私钥存放在keystore文件内)
-	keytool -genkey -alias tomcat_server -validity 365 -keyalg RSA -keysize 1024 -keypass 123456  -storepass 123456 -keystore server_keystore	
 
+	keytool -genkey -alias my_server -validity 365 -keyalg RSA -keysize 1024 -keypass 123456  -storepass 123456 -keystore server_keystore 
+	
 注：接下来会生成证书请求文件，并且使用刚才生成的CA证书对证书请求文件签名，所以需要保证填写的信息和生成CA证书的信息一致才能签名成功	
 
 2.  生成证书请求文件
-	keytool -certreq -alias tomcat_server -sigalg MD5withRSA -file tomcat_server.csr -keypass 123456 -storepass 123456 -keystore server_keystore 
+	keytool -certreq -alias my_server -sigalg MD5withRSA -file my_server.csr -keypass 123456 -storepass 123456 -keystore server_keystore 
 	
 3.  使用 ca 秘钥对证书请求文件进行签名
-	openssl ca -in tomcat_server.csr -out tomcat_server.crt -cert ca.crt -keyfile ca.key -notext -config /System/Library/OpenSSL/openssl.cnf
+	openssl ca -in my_server.csr -out my_server.crt -cert ca.crt -keyfile ca.key -notext -config /System/Library/OpenSSL/openssl.cnf
 	
 4.  导入信任ca 根证书到keystroe
 
@@ -44,7 +45,7 @@
 	 
 5. 把CA签名后的server端证书导入 keystore
 
-	keytool -import -v -alias tomcat_server -file tomcat_server.crt -storepass 123456 -keystore server_keystore
+	keytool -import -v -alias my_server -file my_server.crt -storepass 123456 -keystore server_keystore
 	
 ### 其他操作 
 此时应该可以看到keystore里有两个条目，根证书 my_ca_root和 tomcat_server.csr 的证书链长度为2
@@ -58,6 +59,12 @@
 	keytool -genkey -alias twitter_fake  -validity 365 -keyalg RSA -keysize 1024 -keypass 123456  -storepass 123456 -keystore server_keystore 
 	
 
+
+## 使用openssl 生成多域名证书 
+
+
 ## 参考资料
 
 http://zhouzhk.iteye.com/blog/136943
+
+http://apetec.com/support/GenerateSAN-CSR.htm
