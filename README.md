@@ -19,10 +19,12 @@
 ## 使用openssl 生成证书
 1. 生成服务端私钥
 
-	 openssl genrsa -des3 -out server.key 1024
+	openssl genrsa -des3 -out server.key 1024
 
 2. 通过该私钥生成证书请求文件
+ 
 	openssl req -new -key server.key -out server.csr
+	
 3. 生成自签名CA证书
 
 	openssl req -new -x509 -keyout ca.key -out ca.crt -config /System/Library/OpenSSL/openssl.cnf	
